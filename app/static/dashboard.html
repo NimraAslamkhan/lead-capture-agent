@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Capture Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        select, input {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            padding: 20px 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+            font-size: 0.95em;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #555;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .badge-hot {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .badge-warm {
+            background: #ffa94d;
+            color: white;
+        }
+
+        .badge-cold {
+            background: #a5d8ff;
+            color: #003d82;
+        }
+
+        .intent-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .intent-buy {
+            background: #c3e6cb;
+            color: #155724;
+        }
+
+        .intent-question {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .intent-complaint {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .intent-inquiry {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .message-preview {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            padding: 20px 30px;
+            text-align: center;
+            color: #999;
+            border-top: 1px solid #e0e0e0;
+            background: #f8f9fa;
+            font-size: 0.9em;
+        }
+
+        .refresh-time {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                flex-direction: column;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+
+            .message-preview {
+                max-width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Lead Capture Dashboard</h1>
+            <p>Real-time lead tracking and management</p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number" id="total-leads">0</div>
+                <div class="stat-label">Total Leads</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: #ff6b6b;" id="hot-leads">0</div>
+                <div class="stat-label">🔥 Hot Leads</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: #ffa94d;" id="warm-leads">0</div>
+                <div class="stat-label">🔆 Warm Leads</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: #a5d8ff;" id="cold-leads">0</div>
+                <div class="stat-label">❄️ Cold Leads</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="filter-group">
+                <label for="filter-quality">Filter by Quality:</label>
+                <select id="filter-quality" onchange="filterLeads()">
+                    <option value="">All Leads</option>
+                    <option value="HOT">🔥 Hot Leads</option>
+                    <option value="WARM">🔆 Warm Leads</option>
+                    <option value="COLD">❄️ Cold Leads</option>
+                </select>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="refreshLeads()">🔄 Refresh</button>
+                <button class="btn-secondary" onclick="downloadExcel()">📥 Download Excel</button>
+                <button class="btn-secondary" onclick="downloadCSV()">📥 Download CSV</button>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrapper">
+            <div id="loading" class="loading" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Loading leads...</p>
+            </div>
+
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">📭</div>
+                <h3>No Leads Yet</h3>
+                <p>Leads will appear here once customers send messages</p>
+            </div>
+
+            <table id="leads-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Channel</th>
+                        <th>Message</th>
+                        <th>Intent</th>
+                        <th>Urgency</th>
+                        <th>Score</th>
+                        <th>Quality</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="leads-tbody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Last updated: <span class="refresh-time" id="last-update">Never</span> | 
+            Auto-refresh every 30 seconds</p>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_URL = 'http://localhost:8000/api';
+        const REFRESH_INTERVAL = 30000; // 30 seconds
+
+        // Fetch and display leads
+        async function fetchLeads() {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('leads-table').style.display = 'none';
+                document.getElementById('empty-state').style.display = 'none';
+
+                const response = await fetch(`${API_URL}/webhook/leads?limit=100`);
+                const data = await response.json();
+
+                if (data.leads && data.leads.length > 0) {
+                    displayLeads(data.leads);
+                    updateStats(data.leads);
+                    document.getElementById('leads-table').style.display = 'table';
+                } else {
+                    document.getElementById('empty-state').style.display = 'block';
+                    updateStats([]);
+                }
+
+                document.getElementById('loading').style.display = 'none';
+                updateLastUpdate();
+            } catch (error) {
+                console.error('Error fetching leads:', error);
+                document.getElementById('loading').innerHTML = '<p>❌ Error loading leads. Make sure the server is running.</p>';
+            }
+        }
+
+        // Display leads in table
+        function displayLeads(leads) {
+            const tbody = document.getElementById('leads-tbody');
+            tbody.innerHTML = '';
+
+            leads.forEach((lead, index) => {
+                const row = document.createElement('tr');
+                const date = new Date(lead.created_at).toLocaleDateString();
+                const time = new Date(lead.created_at).toLocaleTimeString();
+
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><strong>${lead.user_name || 'N/A'}</strong></td>
+                    <td>${lead.user_email || '-'}</td>
+                    <td>${lead.user_phone || '-'}</td>
+                    <td>${getChannelIcon(lead.channel)} ${lead.channel}</td>
+                    <td class="message-preview" title="${lead.message}">${lead.message.substring(0, 50)}...</td>
+                    <td><span class="intent-badge intent-${lead.intent.toLowerCase()}">${lead.intent}</span></td>
+                    <td>${getUrgencyIcon(lead.urgency)} ${lead.urgency}</td>
+                    <td><strong>${lead.score.toFixed(0)}/100</strong></td>
+                    <td><span class="badge badge-${lead.quality.toLowerCase()}">${lead.quality}</span></td>
+                    <td>${date} ${time}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Update statistics
+        function updateStats(leads) {
+            const total = leads.length;
+            const hot = leads.filter(l => l.quality === 'HOT').length;
+            const warm = leads.filter(l => l.quality === 'WARM').length;
+            const cold = leads.filter(l => l.quality === 'COLD').length;
+
+            document.getElementById('total-leads').textContent = total;
+            document.getElementById('hot-leads').textContent = hot;
+            document.getElementById('warm-leads').textContent = warm;
+            document.getElementById('cold-leads').textContent = cold;
+        }
+
+        // Filter leads
+        function filterLeads() {
+            const quality = document.getElementById('filter-quality').value;
+            const rows = document.querySelectorAll('#leads-tbody tr');
+
+            rows.forEach(row => {
+                if (!quality) {
+                    row.style.display = '';
+                } else {
+                    const badgeText = row.querySelector('.badge').textContent;
+                    row.style.display = badgeText === quality ? '' : 'none';
+                }
+            });
+        }
+
+        // Download as Excel
+        async function downloadExcel() {
+            try {
+                const response = await fetch(`${API_URL}/webhook/leads?limit=1000`);
+                const data = await response.json();
+                const leads = data.leads;
+
+                if (leads.length === 0) {
+                    alert('No leads to export');
+                    return;
+                }
+
+                // Create CSV content
+                let csv = 'Name,Email,Phone,Channel,Message,Intent,Urgency,Score,Quality,Date\n';
+                leads.forEach(lead => {
+                    csv += `"${lead.user_name || ''}","${lead.user_email || ''}","${lead.user_phone || ''}","${lead.channel}","${lead.message.replace(/"/g, '""')}","${lead.intent}","${lead.urgency}",${lead.score},"${lead.quality}","${new Date(lead.created_at).toLocaleString()}"\n`;
+                });
+
+                // Download as Excel (using CSV format which Excel accepts)
+                downloadFile(csv, 'leads.csv', 'text/csv');
+                alert('✓ Leads exported to Excel successfully!');
+            } catch (error) {
+                console.error('Error downloading Excel:', error);
+                alert('Error downloading file');
+            }
+        }
+
+        // Download as CSV
+        async function downloadCSV() {
+            try {
+                const response = await fetch(`${API_URL}/webhook/leads?limit=1000`);
+                const data = await response.json();
+                const leads = data.leads;
+
+                if (leads.length === 0) {
+                    alert('No leads to export');
+                    return;
+                }
+
+                let csv = 'ID,Name,Email,Phone,Channel,Message,Intent,Urgency,Score,Quality,Date\n';
+                leads.forEach((lead, index) => {
+                    csv += `${index + 1},"${lead.user_name || ''}","${lead.user_email || ''}","${lead.user_phone || ''}","${lead.channel}","${lead.message.replace(/"/g, '""')}","${lead.intent}","${lead.urgency}",${lead.score.toFixed(0)},"${lead.quality}","${new Date(lead.created_at).toLocaleString()}"\n`;
+                });
+
+                downloadFile(csv, 'leads.csv', 'text/csv');
+                alert('✓ Leads exported as CSV successfully!');
+            } catch (error) {
+                console.error('Error downloading CSV:', error);
+                alert('Error downloading file');
+            }
+        }
+
+        // Helper function to download file
+        function downloadFile(content, filename, type) {
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:' + type + ';charset=utf-8,' + encodeURIComponent(content));
+            element.setAttribute('download', filename);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        // Get channel icon
+        function getChannelIcon(channel) {
+            const icons = {
+                'whatsapp': '💬',
+                'instagram': '📷',
+                'website': '🌐',
+                'email': '📧'
+            };
+            return icons[channel] || '📨';
+        }
+
+        // Get urgency icon
+        function getUrgencyIcon(urgency) {
+            const icons = {
+                'high': '🔴',
+                'medium': '🟡',
+                'low': '🟢'
+            };
+            return icons[urgency.toLowerCase()] || '⚪';
+        }
+
+        // Refresh leads
+        function refreshLeads() {
+            fetchLeads();
+        }
+
+        // Update last update time
+        function updateLastUpdate() {
+            const now = new Date();
+            document.getElementById('last-update').textContent = now.toLocaleTimeString();
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(fetchLeads, REFRESH_INTERVAL);
+
+        // Initial load
+        window.addEventListener('load', fetchLeads);
+    </script>
+</body>
+</html>
